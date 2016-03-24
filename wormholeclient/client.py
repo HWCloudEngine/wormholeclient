@@ -16,14 +16,17 @@ class Client(
     api.ContainerApiMixin,
     api.VolumeApiMixin,
     api.NetworkApiMixin,
+    api.TaskApiMixin,
     api.PersonalityApiMixin):
-    def __init__(self, host_ip, port=7127, scheme="http", version=None, timeout=constants.DEFAULT_TIMEOUT_SECONDS):
+    def __init__(self, host_ip, port=7127, scheme="http", version=None, timeout=constants.DEFAULT_TIMEOUT_SECONDS, proxies = { "http": None,  "https": None, }):
         super(Client, self).__init__()
 
         if not host_ip:
             raise errors.InvalidHost(
                 'The host argument must be provided.'
             )
+
+        self.proxies = proxies
 
         self.timeout = timeout
         base_url = utils.parse_host(host_ip, port, scheme)
@@ -49,16 +52,16 @@ class Client(
         return kwargs
 
     def _post(self, url, **kwargs):
-        return self.post(url, **self._set_request_timeout(kwargs))
+        return self.post(url, proxies=self.proxies, **self._set_request_timeout(kwargs))
 
     def _get(self, url, **kwargs):
-        return self.get(url, **self._set_request_timeout(kwargs))
+        return self.get(url, proxies=self.proxies, **self._set_request_timeout(kwargs))
 
     def _put(self, url, **kwargs):
-        return self.put(url, **self._set_request_timeout(kwargs))
+        return self.put(url, proxies=self.proxies, **self._set_request_timeout(kwargs))
 
     def _delete(self, url, **kwargs):
-        return self.delete(url, **self._set_request_timeout(kwargs))
+        return self.delete(url, proxies=self.proxies, **self._set_request_timeout(kwargs))
 
     def _url(self, pathfmt, *args, **kwargs):
         for arg in args:
