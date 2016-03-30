@@ -6,11 +6,11 @@ from .. import errors
 
 class ContainerApiMixin(object):
 
-    def create_container(self, image_name, volume_id=None, network_info=None, block_device_info=None,
+    def create_container(self, image_name, root_volume_id=None, network_info=None, block_device_info=None,
                          inject_files=None, admin_password=None, timeout=10):
         params = {'t': timeout}
         url = self._url("/container/create")
-        create_config = utils.create_container_config(image_name, volume_id=volume_id, network_info=network_info,
+        create_config = utils.create_container_config(image_name, root_volume_id=root_volume_id, network_info=network_info,
                                                       block_device_info=block_device_info, inject_files=inject_files,
                                                       admin_password=admin_password)
         res = self._post_json(url, params=params, data=create_config)

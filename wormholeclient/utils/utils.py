@@ -5,7 +5,7 @@ def parse_host(host_ip, port, scheme):
     return '{0}://{1}:{2}'.format(scheme, host_ip, port)
 
 
-def create_container_config(image_name, volume_id = None, network_info=None, block_device_info=None,
+def create_container_config(image_name, root_volume_id = None, network_info=None, block_device_info=None,
                             inject_files=None, admin_password=None):
     result =  {
         'image_name': image_name,
@@ -13,7 +13,7 @@ def create_container_config(image_name, volume_id = None, network_info=None, blo
         'block_device_info': block_device_info,
         'inject_files': inject_files,
         'admin_password': admin_password,
-        'volume_id' : volume_id
+        'root_volume_id': root_volume_id
     }
 
     return result
