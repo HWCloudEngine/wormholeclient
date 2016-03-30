@@ -86,3 +86,43 @@ class ContainerApiMixin(object):
         res = self._post_json(url, params=params, data=create_image_config)
         self._raise_for_status(res)
         return res.raw
+
+    def attach_volume(self, volume_id, device, mount_device, timeout=10):
+        params = {'t': timeout}
+        url = self._url("/container/attach-volume")
+        res = self._post_json(url, data={ 'volume' : volume_id, 'device': device, 'mount_device' : mount_device })
+        self._raise_for_status(res)
+        return res.raw
+
+    def detach_volume(self, volume_id, timeout=10):
+        params = {'t': timeout}
+        url = self._url("/container/detach-volume")
+        res = self._post_json(url, data={ 'volume' : volume_id })
+        self._raise_for_status(res)
+        return res.raw
+
+    def attach_interface(self, vif, timeout=10):
+        params = {'t': timeout}
+        url = self._url("/container/attach-interface")
+        res = self._post_json(url, data={ 'vif' : vif })
+        self._raise_for_status(res)
+        return res.raw
+
+    def detach_interface(self, vif, timeout=10):
+        params = {'t': timeout}
+        url = self._url("/container/detach-interface")
+        res = self._post_json(url, data={ 'vif' : vif })
+        self._raise_for_status(res)
+        return res.raw
+    
+    def status(self):
+        """ Query Container status, return an integer.
+            constants.CONTAINER_CREATED ==> It's created
+            constants.CONTAINER_UP ==> It's up
+            >= constants.CONTAINER_EXITED ==> It's exited with code = 2
+        """
+        url = self._url("/container/status")
+        status = self._result(self._get(url), True)
+        return status['status']
+
+

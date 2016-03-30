@@ -6,16 +6,15 @@ def parse_host(host_ip, port, scheme):
 
 
 def create_container_config(image_name, volume_id = None, network_info=None, block_device_info=None,
-                            inject_files=None):
+                            inject_files=None, admin_password=None):
     result =  {
         'image_name': image_name,
         'network_info': network_info,
         'block_device_info': block_device_info,
-        'inject_files': inject_files
+        'inject_files': inject_files,
+        'volume_id' : volume_id
     }
 
-    if volume_id:
-        result['volume_id'] = volume_id
     return result
 
 

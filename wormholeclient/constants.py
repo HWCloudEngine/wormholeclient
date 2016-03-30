@@ -8,3 +8,6 @@ CONTAINER_LIMITS_KEYS = [
 INSECURE_REGISTRY_DEPRECATION_WARNING = \
     'The `insecure_registry` argument to {} ' \
     'is deprecated and non-functional. Please remove it.'
+
+TASK_DOING, TASK_SUCCESS, TASK_ERROR = 0, 1, 2
+CONTAINER_CREATED, CONTAINER_UP, CONTAINER_EXITED = 0, 1, 2
