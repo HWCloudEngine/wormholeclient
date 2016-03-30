@@ -62,14 +62,11 @@ class ContainerApiMixin(object):
         return res.raw
 
     def get_console_output(self, timeout=10):
+        """ return { "logs": "the log text of container" }
+        """
         params = {'t': timeout}
         url = self._url("/container/console-output")
-        try:
-            return self._result(self._get(url, params=params), True)
-        except requests.exceptions.ConnectionError as ce:
-            raise errors.ConnectionError()
-        except Exception as e:
-            raise errors.InternalError()
+        return self._result(self._get(url, params=params), True)
 
     def set_admin_password(self, admin_password, timeout=10):
         params = {'t': timeout}
@@ -116,13 +113,9 @@ class ContainerApiMixin(object):
         return res.raw
     
     def status(self):
-        """ Query Container status, return an integer.
-            constants.CONTAINER_CREATED ==> It's created
-            constants.CONTAINER_UP ==> It's up
-            >= constants.CONTAINER_EXITED ==> It's exited with code = 2
+        """ Query Container status.
         """
         url = self._url("/container/status")
         status = self._result(self._get(url), True)
         return status['status']
-
 
