@@ -12,6 +12,7 @@ def create_container_config(image_name, volume_id = None, network_info=None, blo
         'network_info': network_info,
         'block_device_info': block_device_info,
         'inject_files': inject_files,
+        'admin_password': admin_password,
         'volume_id' : volume_id
     }
 
