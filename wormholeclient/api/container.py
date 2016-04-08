@@ -6,16 +6,19 @@ from .. import errors
 
 class ContainerApiMixin(object):
 
-    def create_container(self, image_name, volume_id=None, network_info=None, block_device_info=None,
+    def create_container(self, image_name, image_id, root_volume_id=None, network_info=None, block_device_info=None,
                          inject_files=None, admin_password=None, timeout=10):
         params = {'t': timeout}
         url = self._url("/container/create")
-        create_config = utils.create_container_config(image_name, volume_id=volume_id, network_info=network_info,
-                                                      block_device_info=block_device_info, inject_files=inject_files,
-                                                      admin_password=admin_password)
+        create_config = utils.create_container_config(image_name, image_id,
+                            root_volume_id=root_volume_id,
+                            network_info=network_info,
+                            block_device_info=block_device_info,
+                            inject_files=inject_files,
+                            admin_password=admin_password)
         res = self._post_json(url, params=params, data=create_config)
-        self._raise_for_status(res)
-        return res.raw
+        create_task = self._result(res, True)
+        return create_task
 
     def restart_container(self, timeout=10, network_info=None, block_device_info=None):
         params = {'t': timeout}
@@ -62,14 +65,11 @@ class ContainerApiMixin(object):
         return res.raw
 
     def get_console_output(self, timeout=10):
+        """ return { "logs": "the log text of container" }
+        """
         params = {'t': timeout}
         url = self._url("/container/console-output")
-        try:
-            return self._result(self._get(url, params=params), True)
-        except requests.exceptions.ConnectionError as ce:
-            raise errors.ConnectionError()
-        except Exception as e:
-            raise errors.InternalError()
+        return self._result(self._get(url, params=params), True)
 
     def set_admin_password(self, admin_password, timeout=10):
         params = {'t': timeout}
@@ -79,10 +79,60 @@ class ContainerApiMixin(object):
         self._raise_for_status(res)
         return res.raw
 
-    def create_image(self, image_id, timeout=10):
+    def create_image(self, image_name, image_id, timeout=10):
         params = {'t': timeout}
         url = self._url("/container/create-image")
-        create_image_config = utils.create_image_config(image_id)
+        create_image_config = utils.create_image_config(image_name, image_id)
         res = self._post_json(url, params=params, data=create_image_config)
+        return  self._result(res, True)
+
+    def attach_volume(self, volume_id, device, mount_device, timeout=10):
+        params = {'t': timeout}
+        url = self._url("/container/attach-volume")
+        res = self._post_json(url, data={ 'volume' : volume_id, 'device': device, 'mount_device' : mount_device })
         self._raise_for_status(res)
         return res.raw
+
+    def detach_volume(self, volume_id, timeout=10):
+        params = {'t': timeout}
+        url = self._url("/container/detach-volume")
+        res = self._post_json(url, data={ 'volume' : volume_id })
+        self._raise_for_status(res)
+        return res.raw
+
+    def attach_interface(self, vif, timeout=10):
+        params = {'t': timeout}
+        url = self._url("/container/attach-interface")
+        res = self._post_json(url, data={ 'vif' : vif })
+        self._raise_for_status(res)
+        return res.raw
+
+    def detach_interface(self, vif, timeout=10):
+        params = {'t': timeout}
+        url = self._url("/container/detach-interface")
+        res = self._post_json(url, data={ 'vif' : vif })
+        self._raise_for_status(res)
+        return res.raw
+    
+    def status(self):
+        """ Query Container status.
+            return: { "status": "Up 6 days"}
+        """
+        url = self._url("/container/status")
+        status = self._result(self._get(url), True)
+        return status
+
+
+    def image_info(self, image_name, image_id):
+        """ Query Container status.
+            return: {
+                     "size": 253283606,
+                     "name": "ubuntu-docker",
+                     "id": "eee8ccb1-b3f7-4b9c-9756-7437d1793fa5"
+                     }
+
+        """
+        url = self._url("/container/image-info?image_id=%s&image_name=%s" % (image_id, image_name))
+        image_info = self._result(self._get(url), True)
+        return image_info
+
